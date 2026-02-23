@@ -1,2 +1,2 @@
-# IA
-IA Projects
+# AI
+AI Projects
