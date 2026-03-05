@@ -1,0 +1,195 @@
+# 📝 Respuestas — Unidad 1, Sesión 1
+### Fundamentos de IA Generativa
+
+---
+
+## Ejercicio 1: Explorando Modelos Generativos de Imágenes
+
+### Parte A: Generación de Rostros con GANs
+
+> 🌐 Herramienta: [thispersondoesnotexist.com](https://thispersondoesnotexist.com)
+
+| Pregunta | Observación |
+|---|---|
+| ¿Los rostros parecen reales? | Los rostros son indescriptibles de la realidad, no hay manera de saber si fuera una persona real o no. |
+| ¿Detectas algún artefacto o error? | Hay errores más o menos en un 5% de las fotografías, porque intenta crear otra persona en el fondo o al lado de la principal, y esa persona secundaria sí que no es nada realista. |
+| ¿Qué partes presentan más problemas? | Presenta problemas lo mencionado anteriormente: tener en cuenta cosas que no son la persona principal. |
+
+---
+
+### Parte B: Generación con Modelos de Difusión
+
+> 🎨 Herramienta utilizada: Stable Diffusion / Playground AI / Leonardo AI
+
+| Prompt | Tiempo (s) | Calidad (1-10) | Adherencia (1-10) |
+|---|:---:|:---:|:---:|
+| "A cat sitting on a laptop, photorealistic" | 7 | 9 | 10 |
+| "A futuristic city at sunset, cyberpunk style" | 7 | 9 | 10 |
+| "A medieval knight riding a horse, oil painting" | 7 | 9 | 10 |
+
+> 🖼️ Imágenes generadas: `img1.jpg` · `img2.jpg` · `img3.jpg`
+
+---
+
+### Parte C: Tabla Comparativa
+
+| Aspecto | GANs (rostros) | Difusión (prompts) |
+|---|:---:|:---:|
+| Calidad | 9 | 9 |
+| Velocidad | 10 | 8 |
+| Control sobre resultado | 5 | 10 |
+| Artefactos observados | Entre 10 y 50 | Entre 500 e ∞ |
+
+---
+
+## Ejercicio 2: Análisis de Arquitectura GAN
+
+### Parte A: Comprensión Básica
+
+**1. ¿Cuál es el input del Generador? ¿Por qué se usa ruido aleatorio?**
+
+El input es el ruido. Utiliza ruido para que haya variabilidad en las imágenes, que no siempre sean las mismas, así el generador es más versátil.
+
+**2. ¿Cuál es el output del Discriminador? ¿Qué significa ese valor?**
+
+El discriminador determina si la imagen es del Dataset real, o si la ha creado el generador, es decir, que es una imagen falsa (Real: 1 / Falso: 0).
+
+**3. ¿Por qué el Discriminador recibe tanto imágenes reales como falsas?**
+
+El discriminador también debe aprender. Si solo recibiera imágenes falsas no aprendería y por tanto no podría dar información útil de vuelta al generador para que él mejore también.
+
+---
+
+### Parte B: Dinámica de Entrenamiento
+
+**4. Durante el entrenamiento del Discriminador:**
+
+- **¿Qué gradientes recibe?** Recibe 0 y 1: 0 si la predicción fue incorrecta, o 1 si eligió la respuesta correcta.
+- **¿Hacia qué objetivo se mueve?** El objetivo es realizar el mayor porcentaje de aciertos y el menor de fallos.
+
+**5. Durante el entrenamiento del Generador:**
+
+- **¿Qué gradientes recibe?** Recibe también 0 y 1: 0 si el discriminador predice que la imagen que le ha enviado es falsa, o 1 si predice que es verdadera.
+- **¿Cómo sabe si está mejorando?** Sabe si está mejorando si las respuestas que recibe son cada vez más aleatorias, es decir, que el número de aciertos y fallos se vayan estabilizando al 50%.
+- **¿Por qué el Discriminador se "congela" en esta fase?** Llega un momento en el que el aprendizaje se neutraliza porque el generador empieza a mandar fotos con menos diferencias, por tanto las respuestas del discriminador también se estabilizan.
+
+---
+
+### Parte C: Problemas Comunes
+
+**6. Mode Collapse:**
+
+- **¿Por qué podría ocurrir?** Si el generador es especialmente bueno en engañar al discriminador en un tipo específico de imagen, solo creará esas imágenes porque recibirá el mayor porcentaje de éxito. Habrán muchos otros tipos de imágenes que apenas habrá entrenado y que serán muy poco realistas.
+- **¿Cómo afecta al Discriminador?** Que haya saltos muy grandes en los tipos de imágenes. Por ejemplo, el generador crea muchos gatos, entonces el discriminador se hace muy bueno para distinguirlos, pero entonces se vuelve tan bueno que el generador pasa a hacer solo pianos. Esos saltos crean huecos en los que el generador no ha tenido la oportunidad de crear suficientes imágenes para que sean de buena calidad.
+
+**7. Equilibrio de Nash:**
+
+Si el discriminador es demasiado bueno, el generador progresará muy poco, porque como los resultados que le llegan casi siempre serán los mismos, no tendrá variedad suficiente para progresar a un ritmo considerable.
+
+---
+
+## Ejercicio 3: Espacio Latente en VAEs
+
+### Parte A: Exploración del Espacio Latente
+
+> 🔗 Herramienta: MNIST VAE Demo
+
+| Pregunta | Observación |
+|---|---|
+| ¿Los dígitos similares están cerca en el espacio latente? | Sí, por la función de pérdida, eso fuerza a que genere en base a los píxeles que tiene cercanos, generando estructuras muy continuadas, nada cortantes. |
+| ¿Hay zonas "vacías" sin significado? | Casi no hay espacios huecos. Como se basa en rellenar a nivel probabilístico, rellena más donde la probabilidad es más alta, pero incluso con probabilidades pequeñas también rellena, solo que en menor cantidad. |
+| ¿Qué pasa en las fronteras entre clusters? | Al ser tan continuo, se fusionarán un poco, creando una especie de mezcla entre los clusters. |
+
+---
+
+### Parte B: Interpolación
+
+Seleccionando dos puntos correspondientes a dígitos diferentes (ej. un **"3"** y un **"8"**), trazando la línea recta entre ellos en el espacio 2D, se esperaría ver dígitos de transición en los puntos intermedios, hipótesis verificable moviendo el cursor en la demo.
+
+---
+
+### Parte C: Preguntas de Reflexión
+
+**1. ¿Por qué la interpolación en el espacio latente produce resultados coherentes?**
+
+Por la naturaleza continua, sin saltos bruscos.
+
+**2. ¿Qué pasaría si intentaras interpolar en el espacio de píxeles directamente?**
+
+Crearías una superposición entre los dos números, no daría un buen resultado.
+
+**3. ¿Cómo podría usarse esta propiedad en aplicaciones reales?**
+
+Para editar imágenes, como quitar imperfecciones en la cara, hacer animaciones fluidas, etc.
+
+---
+
+## Ejercicio 4: Comparativa de Técnicas Generativas
+
+### Caso 1: App de Filtros en Tiempo Real
+✅ **Recomendación: GANs**
+
+> Lo más importante es la velocidad, GANs es lo mejor para eso. Además, las imágenes se mantienen bastante ceñidas: siempre son caras, aunque sean de varias edades.
+
+---
+
+### Caso 2: Generación de Arte para NFTs
+✅ **Recomendación: Modelos de Difusión**
+
+> Como el tiempo no es demasiado importante y la calidad es imprescindible, difusión es la mejor opción.
+
+---
+
+### Caso 3: Aumento de Datos Médicos
+✅ **Recomendación: VAEs**
+
+> VAEs permite mucho control, que es necesario para este caso. Además da imágenes de calidad que son perfectas para entrenar el modelo de diagnóstico.
+
+---
+
+### Caso 4: Compresión de Imágenes para Archivo
+✅ **Recomendación: VAEs**
+
+> La naturaleza de VAE es utilizar la compresión de los ficheros, por tanto es justo para lo que se ha creado: realizar la reconstrucción de imágenes comprimidas.
+
+---
+
+## Ejercicio 5: Quiz de Conceptos
+
+| # | Pregunta | Respuesta |
+|:---:|---|:---:|
+| 1 | ¿Cuál es la principal diferencia entre un modelo discriminativo y uno generativo? | **b)** |
+| 2 | En una GAN, ¿qué ocurre si el Discriminador se vuelve demasiado bueno muy rápido? | **b)** |
+| 3 | ¿Por qué los VAEs producen imágenes más borrosas que las GANs? | **b)** |
+| 4 | ¿Cuál es el propósito del término de divergencia KL en la función de pérdida del VAE? | **b)** |
+| 5 | ¿Por qué los modelos de difusión son inherentemente más lentos en inferencia que las GANs? | **b)** |
+
+**Resultado: 5/5 ✅**
+
+---
+
+## Ejercicio Extra: Investigación de Modelos Recientes
+
+### 🤖 Modelo elegido: FLUX
+
+**1. ¿Qué técnica(s) usa?**
+
+FLUX combina Modelos de Difusión con Flow Matching. A diferencia de los modelos de difusión tradicionales que predicen ruido en cada paso y lo eliminan gradualmente, FLUX predice vectores de velocidad que definen caminos directos desde el ruido hacia las imágenes objetivo, eliminando la necesidad de la eliminación iterativa de ruido y reduciendo los pasos necesarios para la generación.
+
+**2. ¿Qué lo diferencia de modelos anteriores?**
+
+- Rendimiento superior medido objetivamente
+- Generación de manos y anatomía humana con mayor precisión
+- Velocidad mejorada radicalmente
+
+**3. ¿Cuáles son sus principales aplicaciones?**
+
+Adobe Photoshop integró FLUX.1 Kontext Pro en su función Generative Fill, permitiendo añadir objetos, modificar fondos o remezclar elementos con mayor precisión.
+
+**4. ¿Cuáles son sus limitaciones conocidas?**
+
+Puede amplificar sesgos sociales existentes y puede fallar en generar outputs que coincidan exactamente con los prompts en todos los casos.
+
+**5. ¿Está disponible públicamente? ¿Bajo qué condiciones?**
+
+FLUX.1 [dev] está disponible en Hugging Face y el código de inferencia puede encontrarse en GitHub, con integración nativa en ComfyUI.
